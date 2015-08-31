@@ -20,7 +20,7 @@ public class Main {
     static final boolean debug = false;
 
     public static void main(String args[]) throws Exception {
-        String authToken = "c7956ff49aa22c355eab8bea8489dbc94b17c26a29da686bbb09e35f629bab1f";
+        String authToken = "";
         DigitalOcean apiClient = new DigitalOceanClient(authToken);
 
 
