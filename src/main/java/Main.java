@@ -42,19 +42,19 @@ public class Main {
                             createMumbleServer(apiClient);
                             getIpAddress(apiClient);
                             displayGUISpace();
-                            displayGUI();
+                            displaySimpleGUI();
                             break;
                         case 2:
                             System.out.println("Fetching IP address for mumble Server...");
                             getIpAddress(apiClient);
                             displayGUISpace();
-                            displayGUI();
+                            displaySimpleGUI();
                             break;
                         case 3:
                             System.out.println("Deleting Mumble Server droplet...");
                             deleteMumbleDroplet(apiClient);
                             displayGUISpace();
-                            displayGUI();
+                            displaySimpleGUI();
                             break;
                         case 4:
                             System.out.println("by Kevin Nitschmann");
@@ -75,6 +75,7 @@ public class Main {
             System.out.println("There is no active Mumble Server");
         } else {
             apiClient.deleteDroplet(mumbleDroplet.getId());
+            System.out.println("Mumble Server deletion has been successfully initiated");
         }
     }
 
@@ -198,5 +199,9 @@ public class Main {
         System.out.println("3 - destroy Server");
         System.out.println("4 - exit");
         System.out.println("#################################################################");
+    }
+    private static void displaySimpleGUI(){
+        System.out.println("#What's next?#");
+        System.out.println("(1 - Create), (2 - Get IP), (3 - Destroy), (4 - Exit))");
     }
 }
