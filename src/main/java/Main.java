@@ -1,15 +1,13 @@
 import com.myjeeva.digitalocean.DigitalOcean;
-import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
-import org.apache.log4j.BasicConfigurator;
+import com.myjeeva.digitalocean.pojo.Image;
 
-import java.awt.datatransfer.*;
-import java.awt.Toolkit;
-
-import java.util.ArrayList;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -22,7 +20,6 @@ public class Main {
     public static void main(String args[]) throws Exception {
         String authToken = "$TOKEN";
         DigitalOcean apiClient = new DigitalOceanClient(authToken);
-
 
         //BasicConfigurator.configure();
 
@@ -45,8 +42,9 @@ public class Main {
                             displaySimpleGUI();
                             break;
                         case 2:
-                            System.out.println("Fetching IP address for mumble Server...");
-                            getIpAddress(apiClient);
+                            System.out.println("Setting Floating IP...");
+//                            getIpAddress(apiClient);
+                            setFloatingIp(apiClient);
                             displayGUISpace();
                             displaySimpleGUI();
                             break;
@@ -68,6 +66,15 @@ public class Main {
         }
     }
 
+    private static void setFloatingIp(DigitalOcean apiClient) throws DigitalOceanException, RequestUnsuccessfulException {
+        Droplet mumbleDroplet = getAvailableDroplets(apiClient);
+        if (mumbleDroplet == null) {
+            System.out.println("There is no active Mumble Server");
+        } else {
+            apiClient.assignFloatingIP(mumbleDroplet.getId(),"188.166.195.143");
+            System.out.println("Mumble Server set to FLoating IP successful");
+        }
+    }
 
     private static void deleteMumbleDroplet(DigitalOcean apiClient) throws DigitalOceanException, RequestUnsuccessfulException {
         Droplet mumbleDroplet = getAvailableDroplets(apiClient);
@@ -80,7 +87,7 @@ public class Main {
     }
 
     private static Droplet getAvailableDroplets(DigitalOcean apiClient) throws DigitalOceanException, RequestUnsuccessfulException {
-        Droplets droplets = apiClient.getAvailableDroplets(0);
+        Droplets droplets = apiClient.getAvailableDroplets(0,0);
         List<Droplet> dropletList = droplets.getDroplets();
         Droplet mumbleDroplet = null;
         for (Droplet droplet : dropletList) {
@@ -134,7 +141,7 @@ public class Main {
         Images userImages = null;
         try {
 
-            Droplets droplets = apiClient.getAvailableDroplets(0);
+            Droplets droplets = apiClient.getAvailableDroplets(0,0);
             List<Droplet> dropletList = droplets.getDroplets();
             Droplet mumbleDroplet = null;
             for (Droplet droplet : dropletList) {
@@ -144,7 +151,7 @@ public class Main {
                 }
             }
 
-            userImages = apiClient.getUserImages(0);
+            userImages = apiClient.getUserImages(0,0);
             List<Image> userImagesList = userImages.getImages();
             Image mumbleImage = null;
             for (Image img : userImagesList) {
@@ -156,6 +163,8 @@ public class Main {
             if (mumbleImage != null) {
                 Droplet tmpDroplet = createDroplet(apiClient, mumbleImage);
                 Droplet droplet = apiClient.createDroplet(tmpDroplet);
+
+
             } else {
                 System.out.println("Error: Mumble Snapshot ID not found");
             }
@@ -166,6 +175,7 @@ public class Main {
         }
     }
 
+
     private static Droplet createDroplet(DigitalOcean apiClient, Image img) {
         Droplet newDroplet = new Droplet();
         newDroplet.setName("Mumble");
@@ -175,6 +185,7 @@ public class Main {
         newDroplet.setEnableBackup(Boolean.FALSE);
         newDroplet.setEnableIpv6(Boolean.FALSE);
         newDroplet.setEnablePrivateNetworking(Boolean.FALSE);
+
         return newDroplet;
     }
 
@@ -195,13 +206,13 @@ public class Main {
         System.out.println("#################################################################");
         System.out.println("Mumble Server Deployment Script");
         System.out.println("1 - Create Droplet and Start Server from Snapshot");
-        System.out.println("2 - get IP address for active Mumble Server");
+        System.out.println("2 - set Floating IP");
         System.out.println("3 - destroy Server");
         System.out.println("4 - exit");
         System.out.println("#################################################################");
     }
     private static void displaySimpleGUI(){
         System.out.println("#What's next?#");
-        System.out.println("(1 - Create), (2 - Get IP), (3 - Destroy), (4 - Exit))");
+        System.out.println("(1 - Create), (2 - Set Floating IP), (3 - Destroy), (4 - Exit))");
     }
 }
